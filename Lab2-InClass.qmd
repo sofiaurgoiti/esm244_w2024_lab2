@@ -247,7 +247,7 @@ energy_forecast %>%
 
 Predicted and observed are similar!
 
-Normal residual distribution and well centered around 0
+Normal residual distribution and well centered around 0.
 
 ```{r}
 
@@ -261,6 +261,32 @@ ggplot(energy_predicted) +
 ggplot(energy_predicted, aes(x = .resid)) +
   geom_histogram()
 
+```
+
+
+# Try other forecasting models!
+
+```{r}
+# Fit 3 different forecasting models (ETS, ARIMA, SNAIVE):
+energy_fit_multi <- energy_ts %>%
+  filter(sector == 'residential') %>%
+  model(
+    ets = ETS(energy_total ~ season("M") + trend("A")),
+    arima = ARIMA(energy_total), ### requires package `urca` to be installed
+    snaive = SNAIVE(energy_total)
+  )
+
+# Forecast 5 years into the future (from data end date)
+multi_forecast <- energy_fit_multi %>% 
+  forecast(h = "5 years")
+
+# Plot the 3 forecasts
+multi_forecast %>% 
+  autoplot(energy_ts)
+
+# Or just view the forecasts (note the similarity across models):
+multi_forecast %>% 
+  autoplot()
 ```
 
 
